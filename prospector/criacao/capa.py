@@ -8,9 +8,9 @@ def montar_capa(lead: Lead) -> str:
     motivo = escape(lead.motivo or "")
     antigo = escape(lead.siteAntigo or "")
     if lead.urlNova:
-        depois = f'<a href="{escape(lead.urlNova)}">Ver a nova versão ↗</a>'
+        depois = f'<a href="{escape(lead.urlNova)}">Ver a nova versêo ↗</a>'
     else:
-        depois = "<em>Nova versão ainda não publicada.</em>"
+        depois = "<em>Nova versêo ainda nêo publicada.</em>"
     return f"""<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <title>Proposta — {nome}</title></head>

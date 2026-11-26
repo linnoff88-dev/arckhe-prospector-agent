@@ -1,19 +1,19 @@
-# Prospector Agent — M2 Descoberta + Qualificação — Implementation Plan
+# Prospector Agent — M2 Descoberta + Qualificaçêo — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:test-driven-development. Steps use checkbox (`- [ ]`) syntax.
 
 **Goal:** `prospector prospectar <nicho> <cidade>` acha candidatos (Maps), aplica filtros baratos, qualifica "site ruim?" + extrai e-mail/WhatsApp e salva os leads qualificados no Store — com todos os limites externos (browser, LLM, HTTP) **injetáveis** para o núcleo ser 100% testável sem rede/credenciais.
 
-**Architecture:** Descoberta é uma interface (`DiscoveryProvider`) com dois providers: `FakeDiscovery` (dados canned, p/ testes e dry-run) e `BrowserDiscovery` (Playwright, real). Qualificação (`Qualificador`) recebe por injeção um `chamar_llm` e um `buscar_site`, então os testes usam mocks e a versão real chama `claude -p` e busca o HTML. O CLI costura provider → filtros → qualificador → Store.
+**Architecture:** Descoberta é uma interface (`DiscoveryProvider`) com dois providers: `FakeDiscovery` (dados canned, p/ testes e dry-run) e `BrowserDiscovery` (Playwright, real). Qualificaçêo (`Qualificador`) recebe por injeçêo um `chamar_llm` e um `buscar_site`, entêo os testes usam mocks e a versêo real chama `claude -p` e busca o HTML. O CLI costura provider → filtros → qualificador → Store.
 
-**Tech Stack:** Python 3.11+, stdlib + `pytest`. `playwright` só é importado dentro de `navegador.py` (import tardio) para não virar dependência dos testes.
+**Tech Stack:** Python 3.11+, stdlib + `pytest`. `playwright` só é importado dentro de `navegador.py` (import tardio) para nêo virar dependência dos testes.
 
 ## Global Constraints
 
 - **Linguagem:** Python 3.11+. Herda tudo do M1 (Store, `Lead`, `Estado`, máquina de estados).
 - **Núcleo determinístico e testável; LLM só em *qualificar*.**
 - **Limites externos injetáveis:** browser, `claude -p` e fetch HTTP entram por parâmetro/interface; **nenhum teste faz rede, subprocess ou abre browser.** Providers/boundaries reais existem mas ficam fora da cobertura de teste (documentado).
-- **E-mail é obrigatório:** candidato sem e-mail público → descartado (não vira lead).
+- **E-mail é obrigatório:** candidato sem e-mail público → descartado (nêo vira lead).
 - **Filtros baratos (sem LLM):** nota ≥ 4.7 **e** avaliações ≥ 40 **e** tem `site_url`.
 - **Idempotência por slug** (Store do M1). Lead qualificado entra com `status = 'qualificado'`.
 - **Segredos** do ambiente; `ANTHROPIC_API_KEY` é o que `claude -p` usa.
@@ -55,7 +55,7 @@ def test_filtros_reprova_nota_baixa_poucas_aval_ou_sem_site():
 
 
 def test_slugify():
-    assert slugify("Clínica São José", "Bauru") == "clinica-sao-jose-bauru"
+    assert slugify("Clínica Sêo José", "Bauru") == "clinica-sao-jose-bauru"
     assert slugify("Dr. Ana  Paula") == "dr-ana-paula"
 ```
 
@@ -144,13 +144,13 @@ class FakeDiscovery(DiscoveryProvider):
 
 ---
 
-### Task 3: `Qualificador` (LLM injetável) — o coração do M2
+### Task 3: `Qualificador` (LLM injetável) — o coraçêo do M2
 
 **Files:** Create `prospector/qualificacao/__init__.py`, `prospector/qualificacao/qualificador.py`; Test `tests/test_qualificador.py`.
 
 **Interfaces — Consumes:** `Candidato`, `slugify`, `Lead`, `Estado`. **Produces:**
 - `Qualificador(chamar_llm: Callable[[str], str], buscar_site: Callable[[str], str], nota_min=4.7, aval_min=40)`.
-- `qualificar(c: Candidato) -> Lead | None`: reprova nos filtros básicos → `None`; senão busca o HTML, monta prompt, chama o LLM (que retorna JSON `{"site_ruim": bool, "motivo": str, "email": str|null, "whatsapp": str|null}`), e: se `site_ruim` for False **ou** não houver e-mail → `None` (descartado); senão retorna `Lead(slug=slugify(nome,?), nome, nota, avaliacoes, email, telefone, whatsapp, siteAntigo=site_url, motivo, status='qualificado')`.
+- `qualificar(c: Candidato) -> Lead | None`: reprova nos filtros básicos → `None`; senêo busca o HTML, monta prompt, chama o LLM (que retorna JSON `{"site_ruim": bool, "motivo": str, "email": str|null, "whatsapp": str|null}`), e: se `site_ruim` for False **ou** nêo houver e-mail → `None` (descartado); senêo retorna `Lead(slug=slugify(nome,?), nome, nota, avaliacoes, email, telefone, whatsapp, siteAntigo=site_url, motivo, status='qualificado')`.
 - Deve extrair o JSON mesmo se o LLM cercar com texto (regex do primeiro `{...}`).
 
 - [ ] **Step 1: Teste que falha** — `tests/test_qualificador.py`:
@@ -254,7 +254,7 @@ class Qualificador:
 
 **Interfaces — Produces:** `chamar_claude(prompt: str) -> str` (roda `claude -p <prompt>` via subprocess, retorna stdout) e `buscar_site(url: str) -> str` (GET via urllib, retorna HTML; erro → `""`).
 
-> Boundary externo: **não escreva teste** (usa subprocess/rede). O implementer confirma o flag exato do CLI (`claude -p "<prompt>"` capturando stdout; se precisar, `--output-format text`). Timeout defensivo e captura de erro obrigatórios.
+> Boundary externo: **nêo escreva teste** (usa subprocess/rede). O implementer confirma o flag exato do CLI (`claude -p "<prompt>"` capturando stdout; se precisar, `--output-format text`). Timeout defensivo e captura de erro obrigatórios.
 
 - [ ] **Step 1: Implementar** — `prospector/qualificacao/boundaries.py`:
 ```python
@@ -290,7 +290,7 @@ def buscar_site(url: str, timeout: int = 20) -> str:
 
 **Interfaces — Produces:** `BrowserDiscovery(headless=False)` (implementa `descobrir`, real, sem cobertura) + `_candidato_de_dados(d: dict) -> Candidato` (helper PURO — converte um dict cru de card do Maps em `Candidato`; ESTE é testado).
 
-> `playwright` é importado **dentro** de `descobrir` (import tardio), não no topo — assim os testes não exigem o pacote. O implementer escreve a navegação real (abrir maps, buscar `[nicho] em [cidade]`, ler cards); se o Maps pedir captcha/login, levantar exceção clara. A lógica de scrape NÃO é testada aqui.
+> `playwright` é importado **dentro** de `descobrir` (import tardio), nêo no topo — assim os testes nêo exigem o pacote. O implementer escreve a navegaçêo real (abrir maps, buscar `[nicho] em [cidade]`, ler cards); se o Maps pedir captcha/login, levantar exceçêo clara. A lógica de scrape NêO é testada aqui.
 
 - [ ] **Step 1: Teste que falha** (só o helper puro) — `tests/test_navegador_parse.py`:
 ```python
@@ -313,7 +313,7 @@ def test_parse_card_campos_ausentes():
 ```
 
 - [ ] **Step 2: Falhar** — FAIL.
-- [ ] **Step 3: Implementar** — `prospector/descoberta/navegador.py` (helper puro + navegação real):
+- [ ] **Step 3: Implementar** — `prospector/descoberta/navegador.py` (helper puro + navegaçêo real):
 ```python
 from __future__ import annotations
 from prospector.descoberta.base import Candidato, DiscoveryProvider
@@ -383,8 +383,8 @@ class BrowserDiscovery(DiscoveryProvider):
 **Files:** Modify `prospector/cli.py`; Test `tests/test_cli_prospectar.py`.
 
 **Interfaces — Produces:**
-- `prospectar(provider, qualificador, conn, nicho, cidade, meta) -> list[Lead]` — itera `provider.descobrir(...)`, qualifica cada um, salva os leads (não-None) no Store, retorna a lista salva.
-- Subcomando CLI `prospectar <nicho> <cidade> [--provider fake|navegador] [--meta N] [--db P]`. Com `--provider fake` usa `FakeDiscovery` com 1 candidato canned e um LLM/fetch reais só se `navegador`; **no teste, a função `prospectar` é chamada direto com mocks** (o subcomando real monta os boundaries de verdade).
+- `prospectar(provider, qualificador, conn, nicho, cidade, meta) -> list[Lead]` — itera `provider.descobrir(...)`, qualifica cada um, salva os leads (nêo-None) no Store, retorna a lista salva.
+- Subcomando CLI `prospectar <nicho> <cidade> [--provider fake|navegador] [--meta N] [--db P]`. Com `--provider fake` usa `FakeDiscovery` com 1 candidato canned e um LLM/fetch reais só se `navegador`; **no teste, a funçêo `prospectar` é chamada direto com mocks** (o subcomando real monta os boundaries de verdade).
 
 - [ ] **Step 1: Teste que falha** — `tests/test_cli_prospectar.py`:
 ```python
@@ -457,17 +457,17 @@ E registre o subcomando em `main()` (ao lado de `demo`/`init`):
 
 - [ ] **Step 4: Passa** — `python3 -m pytest tests/test_cli_prospectar.py -v` → PASS.
 - [ ] **Step 5: Suíte inteira + smoke** — `python3 -m pytest -q` (todos M1+M2 verdes) e `python3 -m prospector prospectar nutri Bauru --provider fake --db /tmp/pa_m2.db` → imprime 1 lead `clinica-demo`. Apague `/tmp/pa_m2.db` depois.
-- [ ] **Step 6: Commit** — `git commit -m "feat(m2): CLI prospectar (descoberta -> qualificação -> Store)"`
+- [ ] **Step 6: Commit** — `git commit -m "feat(m2): CLI prospectar (descoberta -> qualificaçêo -> Store)"`
 
 ---
 
 ## Self-Review
 
 - Descoberta plugável (contrato + fake + browser) → Tasks 1,2,5 ✓
-- Qualificação com LLM/fetch injetáveis, e-mail obrigatório, filtros → Task 3 ✓
+- Qualificaçêo com LLM/fetch injetáveis, e-mail obrigatório, filtros → Task 3 ✓
 - Boundaries reais isolados sem cobertura → Task 4 ✓
 - CLI prospectar salvando no Store → Task 6 ✓
 - Limites externos nunca tocados por teste (fake provider + mocks) ✓
-- **Não verificável no sandbox (precisa do usuário):** scrape real do Maps (`--provider navegador`) e `claude -p` real. Documentar no relatório.
+- **Nêo verificável no sandbox (precisa do usuário):** scrape real do Maps (`--provider navegador`) e `claude -p` real. Documentar no relatório.
 
 **Type consistency:** `Candidato`/`DiscoveryProvider` de `base` usados igual em fake/navegador/qualificador; `Qualificador.qualificar -> Lead|None` consumido pela `prospectar`; `Lead`/`Estado` do M1.

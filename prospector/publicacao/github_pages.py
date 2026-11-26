@@ -11,7 +11,7 @@ class Publicador:
         self._base_url = base_url.rstrip("/")
 
     def publicar(self, lead: Lead, conn, local_dir: str) -> str:
-        novo = me.avancar(Estado(lead.status), Estado.PUBLICADO)  # valida transição
+        novo = me.avancar(Estado(lead.status), Estado.PUBLICADO)  # valida transiçêo
         self._pub(local_dir, lead.slug)
         url = f"{self._base_url}/{lead.slug}/"
         lead.urlNova = url

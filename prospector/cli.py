@@ -9,14 +9,14 @@ from prospector.qualificacao.qualificador import Qualificador
 
 
 def caminho_dry_run(lead: Lead) -> list[Estado]:
-    """Sequência de estados que o lead percorreria, respeitando o portão."""
+    """Sequência de estados que o lead percorreria, respeitando o portêo."""
     caminho = [Estado.DESCOBERTO, Estado.QUALIFICADO,
                Estado.REDESENHADO, Estado.PUBLICADO]
     if lead.sem_portao:
-        caminho.append(Estado.ENVIADO)          # rota --auto: pula o portão
+        caminho.append(Estado.ENVIADO)          # rota --auto: pula o portêo
     else:
         caminho.append(Estado.AGUARDANDO_APROVACAO)
-    # valida que cada passo é uma transição legal
+    # valida que cada passo é uma transiçêo legal
     for de, para in zip(caminho, caminho[1:]):
         me.avancar(de, para)
     return caminho
@@ -72,7 +72,7 @@ def _cmd_prospectar(args: argparse.Namespace) -> int:
 def _lead_ou_erro(conn, slug):
     lead = db.ler_lead(conn, slug)
     if lead is None:
-        print(f"Lead '{slug}' não encontrado.")
+        print(f"Lead '{slug}' nêo encontrado.")
     return lead
 
 
@@ -104,7 +104,7 @@ def _cmd_publicar(args: argparse.Namespace) -> int:
 def _cmd_aprovar(args: argparse.Namespace) -> int:
     conn = db.conectar(args.db)
     if db.ler_lead(conn, args.slug) is None:
-        print(f"Lead '{args.slug}' não encontrado.")
+        print(f"Lead '{args.slug}' nêo encontrado.")
         return 1
     from prospector.orquestrador.nucleo import Orquestrador
     from prospector.criacao.criador import Criador
@@ -129,7 +129,7 @@ def _cmd_aprovar(args: argparse.Namespace) -> int:
 
 
 def _cmd_atender(args: argparse.Namespace) -> int:
-    # prospecta (provider fake por padrão) e processa cada lead
+    # prospecta (provider fake por padrêo) e processa cada lead
     from prospector.orquestrador.nucleo import Orquestrador
     print("atender: use --db e o provider fake; wiring completo depende de credenciais reais.")
     return 0
@@ -141,7 +141,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p_demo = sub.add_parser("demo", help="roda a esteira fake")
     p_demo.add_argument("--dry-run", action="store_true")
-    p_demo.add_argument("--auto", action="store_true", help="pula o portão")
+    p_demo.add_argument("--auto", action="store_true", help="pula o portêo")
     p_demo.add_argument("--db", default="prospector.db")
     p_demo.set_defaults(func=_cmd_demo)
 

@@ -1,16 +1,16 @@
-# Prospector Agent — M3 Criação + Publicação — Implementation Plan
+# Prospector Agent — M3 Criaçêo + Publicaçêo — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:test-driven-development. Steps usam checkbox (`- [ ]`).
 
 **Goal:** `prospector redesenhar <slug>` gera a página premium em `sites/<slug>/` (index.html via LLM + `proposta.html` capa antes/depois) e move o lead p/ `redesenhado`; `prospector publicar <slug>` sobe a pasta no GitHub Pages e move p/ `publicado` gravando a `urlNova` — com o LLM e o `git push` **injetáveis** para o núcleo ser testável sem rede.
 
-**Architecture:** `Criador` recebe por injeção um `gerar_index(lead, dest_dir)` (real = `claude -p` + skill de redesign; teste = escreve stub); a capa (`montar_capa`) é pura. `Publicador` recebe um `publicar_arquivos(local_dir, slug)` (real = git push no monorepo Pages; teste = fake que registra a chamada). Transições validadas pela máquina de estados do M1.
+**Architecture:** `Criador` recebe por injeçêo um `gerar_index(lead, dest_dir)` (real = `claude -p` + skill de redesign; teste = escreve stub); a capa (`montar_capa`) é pura. `Publicador` recebe um `publicar_arquivos(local_dir, slug)` (real = git push no monorepo Pages; teste = fake que registra a chamada). Transições validadas pela máquina de estados do M1.
 
 **Tech Stack:** Python 3.11+, stdlib + pytest. Herda M1 (Store, Estado, máquina) e M2 (Lead qualificado).
 
 ## Global Constraints
 
-- Python 3.11+. Núcleo determinístico e testável; **LLM só na geração do index**.
+- Python 3.11+. Núcleo determinístico e testável; **LLM só na geraçêo do index**.
 - **Limites externos injetáveis** (LLM de redesign, `git push`); **nenhum teste faz rede/subprocess/git real**. Boundaries reais existem, sem cobertura.
 - **Transições válidas:** `qualificado → redesenhado → publicado`, sempre via `maquina_estados.avancar`.
 - Idempotência por slug (Store do M1). `publicar` grava `urlNova` no lead.
@@ -34,7 +34,7 @@
 
 **Files:** Create `prospector/criacao/__init__.py`, `prospector/criacao/capa.py`; Test `tests/test_capa.py`.
 
-**Interfaces — Produces:** `montar_capa(lead: Lead) -> str` — HTML self-contained com: nome do negócio, o `motivo` (por que o site é ruim), um `<iframe>` do `siteAntigo` ("antes"), um link/iframe pra `urlNova` ("depois", ou aviso "ainda não publicado" se `None`), e uma CTA. Escapa `<`,`>`,`&` nos campos de texto.
+**Interfaces — Produces:** `montar_capa(lead: Lead) -> str` — HTML self-contained com: nome do negócio, o `motivo` (por que o site é ruim), um `<iframe>` do `siteAntigo` ("antes"), um link/iframe pra `urlNova` ("depois", ou aviso "ainda nêo publicado" se `None`), e uma CTA. Escapa `<`,`>`,`&` nos campos de texto.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_capa.py`:
 ```python
@@ -55,7 +55,7 @@ def test_capa_contem_dados_do_lead():
 def test_capa_sem_url_nova_avisa():
     html = montar_capa(Lead(slug="c", nome="Y", siteAntigo="http://o.com"))
     assert "http://o.com" in html
-    assert "não publicad" in html.lower() or "nao publicad" in html.lower()
+    assert "nêo publicad" in html.lower() or "nao publicad" in html.lower()
 ```
 
 - [ ] **Step 2: Falhar** — `python3 -m pytest tests/test_capa.py -v` → FAIL.
@@ -71,9 +71,9 @@ def montar_capa(lead: Lead) -> str:
     motivo = escape(lead.motivo or "")
     antigo = escape(lead.siteAntigo or "")
     if lead.urlNova:
-        depois = f'<a href="{escape(lead.urlNova)}">Ver a nova versão ↗</a>'
+        depois = f'<a href="{escape(lead.urlNova)}">Ver a nova versêo ↗</a>'
     else:
-        depois = "<em>Nova versão ainda não publicada.</em>"
+        depois = "<em>Nova versêo ainda nêo publicada.</em>"
     return f"""<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <title>Proposta — {nome}</title></head>
@@ -102,7 +102,7 @@ def montar_capa(lead: Lead) -> str:
 
 **Files:** Create `prospector/criacao/criador.py`; Test `tests/test_criador.py`.
 
-**Interfaces — Consumes:** `Lead`, `Estado`, `montar_capa`, `maquina_estados`, `db`. **Produces:** `Criador(gerar_index: Callable[[Lead, str], None], base_dir: str = "sites")` + `redesenhar(lead: Lead, conn) -> str` que: cria `<base_dir>/<slug>/`, chama `gerar_index(lead, dest)` (deve escrever `index.html`), valida que `index.html` existe e não está vazio (senão `RuntimeError`), escreve `proposta.html` = `montar_capa(lead)`, valida a transição `Estado(lead.status) → REDESENHADO` e grava o novo status no Store; retorna o caminho `dest`.
+**Interfaces — Consumes:** `Lead`, `Estado`, `montar_capa`, `maquina_estados`, `db`. **Produces:** `Criador(gerar_index: Callable[[Lead, str], None], base_dir: str = "sites")` + `redesenhar(lead: Lead, conn) -> str` que: cria `<base_dir>/<slug>/`, chama `gerar_index(lead, dest)` (deve escrever `index.html`), valida que `index.html` existe e nêo está vazio (senêo `RuntimeError`), escreve `proposta.html` = `montar_capa(lead)`, valida a transiçêo `Estado(lead.status) → REDESENHADO` e grava o novo status no Store; retorna o caminho `dest`.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_criador.py`:
 ```python
@@ -133,7 +133,7 @@ def test_redesenhar_falha_se_index_vazio(tmp_path):
     conn = db.conectar(":memory:")
     lead = Lead(slug="y", nome="Y", status=Estado.QUALIFICADO.value)
     db.salvar_lead(conn, lead)
-    criador = Criador(lambda l, d: None, base_dir=str(tmp_path))  # não escreve index
+    criador = Criador(lambda l, d: None, base_dir=str(tmp_path))  # nêo escreve index
     try:
         criador.redesenhar(lead, conn)
         assert False, "deveria ter falhado"
@@ -163,7 +163,7 @@ class Criador:
         self._gerar(lead, dest)
         idx = os.path.join(dest, "index.html")
         if not os.path.exists(idx) or os.path.getsize(idx) == 0:
-            raise RuntimeError(f"gerar_index não produziu index.html em {dest}")
+            raise RuntimeError(f"gerar_index nêo produziu index.html em {dest}")
         with open(os.path.join(dest, "proposta.html"), "w", encoding="utf-8") as f:
             f.write(montar_capa(lead))
         novo = me.avancar(Estado(lead.status), Estado.REDESENHADO)
@@ -172,7 +172,7 @@ class Criador:
         return dest
 ```
 
-- [ ] **Step 4: Passa** — PASS (2 testes). **Step 5: Commit** — `git commit -m "feat(m3): Criador (index via LLM injetável + capa + transição)"`
+- [ ] **Step 4: Passa** — PASS (2 testes). **Step 5: Commit** — `git commit -m "feat(m3): Criador (index via LLM injetável + capa + transiçêo)"`
 
 ---
 
@@ -180,7 +180,7 @@ class Criador:
 
 **Files:** Create `prospector/publicacao/__init__.py`, `prospector/publicacao/github_pages.py`; Test `tests/test_publicador.py`.
 
-**Interfaces — Produces:** `Publicador(publicar_arquivos: Callable[[str, str], None], base_url: str)` + `publicar(lead: Lead, conn, local_dir: str) -> str` que: valida transição `Estado(lead.status) → PUBLICADO`, chama `publicar_arquivos(local_dir, lead.slug)`, calcula `url = base_url.rstrip("/") + "/" + slug + "/"`, grava no lead `urlNova=url` e `status=publicado` (via `db.salvar_lead`), retorna a url.
+**Interfaces — Produces:** `Publicador(publicar_arquivos: Callable[[str, str], None], base_url: str)` + `publicar(lead: Lead, conn, local_dir: str) -> str` que: valida transiçêo `Estado(lead.status) → PUBLICADO`, chama `publicar_arquivos(local_dir, lead.slug)`, calcula `url = base_url.rstrip("/") + "/" + slug + "/"`, grava no lead `urlNova=url` e `status=publicado` (via `db.salvar_lead`), retorna a url.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_publicador.py`:
 ```python
@@ -206,7 +206,7 @@ def test_publicar_chama_boundary_grava_url_e_status():
 def test_publicar_recusa_estado_invalido():
     pub = Publicador(lambda l, s: None, base_url="http://x")
     conn = db.conectar(":memory:")
-    lead = Lead(slug="y", nome="Y", status=Estado.QUALIFICADO.value)  # não pode publicar
+    lead = Lead(slug="y", nome="Y", status=Estado.QUALIFICADO.value)  # nêo pode publicar
     db.salvar_lead(conn, lead)
     try:
         pub.publicar(lead, conn, "sites/y")
@@ -230,7 +230,7 @@ class Publicador:
         self._base_url = base_url.rstrip("/")
 
     def publicar(self, lead: Lead, conn, local_dir: str) -> str:
-        novo = me.avancar(Estado(lead.status), Estado.PUBLICADO)  # valida transição
+        novo = me.avancar(Estado(lead.status), Estado.PUBLICADO)  # valida transiçêo
         self._pub(local_dir, lead.slug)
         url = f"{self._base_url}/{lead.slug}/"
         lead.urlNova = url
@@ -239,7 +239,7 @@ class Publicador:
         return url
 ```
 
-- [ ] **Step 4: Passa** — PASS. **Step 5: Commit** — `git commit -m "feat(m3): Publicador (git injetável, URL, transição publicado)"`
+- [ ] **Step 4: Passa** — PASS. **Step 5: Commit** — `git commit -m "feat(m3): Publicador (git injetável, URL, transiçêo publicado)"`
 
 ---
 
@@ -247,7 +247,7 @@ class Publicador:
 
 **Files:** Create `prospector/criacao/boundaries.py`, `prospector/publicacao/boundaries.py`.
 
-> Boundaries externos — **não testar**. Latitude p/ o implementer nos detalhes (flag do `claude -p`, comandos git). Erros devem virar exceção clara.
+> Boundaries externos — **nêo testar**. Latitude p/ o implementer nos detalhes (flag do `claude -p`, comandos git). Erros devem virar exceçêo clara.
 
 - [ ] **Step 1: Implementar** — `prospector/criacao/boundaries.py`:
 ```python
@@ -269,7 +269,7 @@ def gerar_index_com_claude(lead: Lead, dest_dir: str, timeout: int = 600) -> Non
     if r.returncode != 0:
         raise RuntimeError(f"claude -p (redesign) falhou: {r.stderr[:400]}")
     if not os.path.exists(os.path.join(dest_dir, "index.html")):
-        raise RuntimeError("claude -p não gerou index.html")
+        raise RuntimeError("claude -p nêo gerou index.html")
 ```
 `prospector/publicacao/boundaries.py`:
 ```python
@@ -298,7 +298,7 @@ def publicar_via_git(local_dir: str, slug: str, repo_dir: str) -> None:
 
 **Files:** Modify `prospector/cli.py`; Test `tests/test_cli_criar_publicar.py`.
 
-**Interfaces — Produces:** subcomandos `redesenhar <slug> [--db]` e `publicar <slug> [--db] [--base-url] [--repo-dir]`. Cada um lê o lead do Store, roda `Criador`/`Publicador` com os boundaries reais e imprime o resultado. A LÓGICA já está nas classes (testadas); aqui só é a fiação — o teste chama `_cmd_redesenhar` com um lead no db e um criador de fake via monkeypatch da boundary NÃO é necessário: teste apenas o parsing do subcomando + erro de slug inexistente.
+**Interfaces — Produces:** subcomandos `redesenhar <slug> [--db]` e `publicar <slug> [--db] [--base-url] [--repo-dir]`. Cada um lê o lead do Store, roda `Criador`/`Publicador` com os boundaries reais e imprime o resultado. A LÓGICA já está nas classes (testadas); aqui só é a fiaçêo — o teste chama `_cmd_redesenhar` com um lead no db e um criador de fake via monkeypatch da boundary NêO é necessário: teste apenas o parsing do subcomando + erro de slug inexistente.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_cli_criar_publicar.py`:
 ```python
@@ -309,7 +309,7 @@ from prospector import cli
 def test_redesenhar_slug_inexistente_retorna_erro(tmp_path, capsys):
     rc = cli.main(["redesenhar", "nao-existe", "--db", str(tmp_path / "x.db")])
     assert rc == 1
-    assert "não encontrado" in capsys.readouterr().out.lower() or \
+    assert "nêo encontrado" in capsys.readouterr().out.lower() or \
            "nao encontrado" in capsys.readouterr().out.lower()
 
 
@@ -324,7 +324,7 @@ def test_subcomandos_registrados():
 def _lead_ou_erro(conn, slug):
     lead = db.ler_lead(conn, slug)
     if lead is None:
-        print(f"Lead '{slug}' não encontrado.")
+        print(f"Lead '{slug}' nêo encontrado.")
     return lead
 
 
@@ -373,9 +373,9 @@ E registre em `main()`:
 
 ## Self-Review
 
-- Capa antes/depois pura → Task 1 ✓; Criador com LLM injetável + transição → Task 2 ✓; Publicador git injetável + URL + estado → Task 3 ✓; boundaries reais isolados → Task 4 ✓; CLI → Task 5 ✓.
+- Capa antes/depois pura → Task 1 ✓; Criador com LLM injetável + transiçêo → Task 2 ✓; Publicador git injetável + URL + estado → Task 3 ✓; boundaries reais isolados → Task 4 ✓; CLI → Task 5 ✓.
 - Transições sempre por `maquina_estados.avancar` (qualificado→redesenhado→publicado) ✓.
 - Nenhum teste toca LLM/git/rede ✓.
-- **Não verificável no sandbox (precisa do usuário):** `claude -p` de redesign real e `git push` real no repo Pages. Documentar no relatório.
+- **Nêo verificável no sandbox (precisa do usuário):** `claude -p` de redesign real e `git push` real no repo Pages. Documentar no relatório.
 
 **Type consistency:** `Criador.redesenhar(lead, conn)->str` e `Publicador.publicar(lead, conn, local_dir)->str`; `montar_capa(lead)->str`; usa `Lead`/`Estado`/`db`/`maquina_estados` do M1.

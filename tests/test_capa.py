@@ -15,4 +15,4 @@ def test_capa_contem_dados_do_lead():
 def test_capa_sem_url_nova_avisa():
     html = montar_capa(Lead(slug="c", nome="Y", siteAntigo="http://o.com"))
     assert "http://o.com" in html
-    assert "não publicad" in html.lower() or "nao publicad" in html.lower()
+    assert "nêo publicad" in html.lower() or "nao publicad" in html.lower()

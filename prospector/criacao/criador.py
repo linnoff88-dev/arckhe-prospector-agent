@@ -18,7 +18,7 @@ class Criador:
         self._gerar(lead, dest)
         idx = os.path.join(dest, "index.html")
         if not os.path.exists(idx) or os.path.getsize(idx) == 0:
-            raise RuntimeError(f"gerar_index não produziu index.html em {dest}")
+            raise RuntimeError(f"gerar_index nêo produziu index.html em {dest}")
         with open(os.path.join(dest, "proposta.html"), "w", encoding="utf-8") as f:
             f.write(montar_capa(lead))
         novo = me.avancar(Estado(lead.status), Estado.REDESENHADO)

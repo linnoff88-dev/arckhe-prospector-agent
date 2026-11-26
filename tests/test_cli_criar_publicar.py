@@ -5,7 +5,7 @@ from prospector import cli
 def test_redesenhar_slug_inexistente_retorna_erro(tmp_path, capsys):
     rc = cli.main(["redesenhar", "nao-existe", "--db", str(tmp_path / "x.db")])
     assert rc == 1
-    assert "não encontrado" in capsys.readouterr().out.lower() or \
+    assert "nêo encontrado" in capsys.readouterr().out.lower() or \
            "nao encontrado" in capsys.readouterr().out.lower()
 
 

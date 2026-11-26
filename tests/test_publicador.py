@@ -20,7 +20,7 @@ def test_publicar_chama_boundary_grava_url_e_status():
 def test_publicar_recusa_estado_invalido():
     pub = Publicador(lambda l, s: None, base_url="http://x")
     conn = db.conectar(":memory:")
-    lead = Lead(slug="y", nome="Y", status=Estado.QUALIFICADO.value)  # não pode publicar
+    lead = Lead(slug="y", nome="Y", status=Estado.QUALIFICADO.value)  # nêo pode publicar
     db.salvar_lead(conn, lead)
     try:
         pub.publicar(lead, conn, "sites/y")

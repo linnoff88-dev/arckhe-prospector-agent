@@ -33,6 +33,6 @@ class Orquestrador:
     def aprovar(self, slug: str) -> None:
         lead = db.ler_lead(self._conn, slug)
         if lead is None:
-            raise ValueError(f"lead '{slug}' não encontrado")
+            raise ValueError(f"lead '{slug}' nêo encontrado")
         self._mailer.enviar(lead, self._conn)                  # aguardando_aprovacao -> enviado
         self._notificar(msg_enviado(lead))

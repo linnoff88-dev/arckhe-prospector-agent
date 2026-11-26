@@ -37,5 +37,5 @@ def eh_terminal(estado: Estado) -> bool:
 
 def avancar(de: Estado, para: Estado) -> Estado:
     if not pode_transicionar(de, para):
-        raise TransicaoInvalida(f"{de.value} -> {para.value} não é permitido")
+        raise TransicaoInvalida(f"{de.value} -> {para.value} nêo é permitido")
     return para

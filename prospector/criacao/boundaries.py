@@ -16,4 +16,4 @@ def gerar_index_com_claude(lead: Lead, dest_dir: str, timeout: int = 600) -> Non
     if r.returncode != 0:
         raise RuntimeError(f"claude -p (redesign) falhou: {r.stderr[:400]}")
     if not os.path.exists(os.path.join(dest_dir, "index.html")):
-        raise RuntimeError("claude -p não gerou index.html")
+        raise RuntimeError("claude -p nêo gerou index.html")

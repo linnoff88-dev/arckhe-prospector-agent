@@ -1,7 +1,7 @@
 [project]
 name = "prospector-agent"
 version = "0.1.0"
-description = "Esteira semi-autônoma de prospecção e venda de sites"
+description = "Esteira semi-autônoma de prospecçêo e venda de sites"
 requires-python = ">=3.11"
 dependencies = []
 

@@ -18,6 +18,6 @@ def test_demo_dry_run_nao_cria_db(tmp_path, capsys):
     db_file = tmp_path / "x.db"
     rc = cli.main(["demo", "--dry-run", "--auto", "--db", str(db_file)])
     assert rc == 0
-    assert not db_file.exists()            # dry-run não toca disco
+    assert not db_file.exists()            # dry-run nêo toca disco
     out = capsys.readouterr().out
     assert "enviado" in out                # imprimiu o caminho

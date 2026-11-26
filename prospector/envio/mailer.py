@@ -17,9 +17,9 @@ class Supressao:
 
 
 def montar_corpo(lead: Lead) -> str:
-    return (f"<p>Olá! Preparei uma nova versão do site de {lead.nome}.</p>"
+    return (f"<p>Olá! Preparei uma nova versêo do site de {lead.nome}.</p>"
             f'<p><a href="{lead.urlNova or "#"}">Ver a proposta ↗</a></p>'
-            f'<hr><p style="font-size:12px;color:#888">Não quer mais receber? '
+            f'<hr><p style="font-size:12px;color:#888">Nêo quer mais receber? '
             f'Responda com "descadastrar" (opt-out).</p>')
 
 

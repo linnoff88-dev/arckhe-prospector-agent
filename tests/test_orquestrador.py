@@ -43,7 +43,7 @@ def test_portao_para_em_aprovacao_e_aprovar_envia(tmp_path):
     db.salvar_lead(conn, lead)
     orq.processar(lead)
     assert db.ler_lead(conn, "y").status == "aguardando_aprovacao"
-    assert enviados == []          # ainda não enviou
+    assert enviados == []          # ainda nêo enviou
     assert any("Aprovar" in n for n in notifs)
     orq.aprovar("y")
     assert db.ler_lead(conn, "y").status == "enviado"

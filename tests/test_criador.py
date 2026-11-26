@@ -25,7 +25,7 @@ def test_redesenhar_falha_se_index_vazio(tmp_path):
     conn = db.conectar(":memory:")
     lead = Lead(slug="y", nome="Y", status=Estado.QUALIFICADO.value)
     db.salvar_lead(conn, lead)
-    criador = Criador(lambda l, d: None, base_dir=str(tmp_path))  # não escreve index
+    criador = Criador(lambda l, d: None, base_dir=str(tmp_path))  # nêo escreve index
     try:
         criador.redesenhar(lead, conn)
         assert False, "deveria ter falhado"

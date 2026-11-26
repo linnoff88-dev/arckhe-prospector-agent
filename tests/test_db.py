@@ -5,7 +5,7 @@ from prospector.estado import db
 def test_salvar_ler_e_upsert_idempotente():
     conn = db.conectar(":memory:")
     db.salvar_lead(conn, Lead(slug="c1", nome="Clínica 1", nota=4.8))
-    # Reinserir o mesmo slug NÃO duplica (idempotência) e atualiza campos.
+    # Reinserir o mesmo slug NêO duplica (idempotência) e atualiza campos.
     db.salvar_lead(conn, Lead(slug="c1", nome="Clínica 1", nota=4.9))
     lido = db.ler_lead(conn, "c1")
     assert lido is not None

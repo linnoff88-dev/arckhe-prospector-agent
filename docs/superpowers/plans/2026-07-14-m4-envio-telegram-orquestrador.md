@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:test-driven-development. Steps usam checkbox (`- [ ]`).
 
-**Goal:** Fechar a esteira: `Mailer` (Resend injetável, supressão, opt-out, 1-por-lead), formatadores/parse de Telegram, e o `Orquestrador` que roda um lead de `qualificado` até `enviado` — parando no **portão** (`aguardando_aprovacao`) quando o lead não é `sem_portao`, e seguindo direto quando é. Tudo com os limites externos (Resend, Telegram) injetáveis e o pipeline inteiro testável em memória.
+**Goal:** Fechar a esteira: `Mailer` (Resend injetável, supressêo, opt-out, 1-por-lead), formatadores/parse de Telegram, e o `Orquestrador` que roda um lead de `qualificado` até `enviado` — parando no **portêo** (`aguardando_aprovacao`) quando o lead nêo é `sem_portao`, e seguindo direto quando é. Tudo com os limites externos (Resend, Telegram) injetáveis e o pipeline inteiro testável em memória.
 
-**Architecture:** `Orquestrador` recebe `criador`, `publicador`, `mailer` e um `notificar(msg)` por injeção e conduz as transições pela máquina de estados do M1. O portão é `not lead.sem_portao`. `sem_portao` vive só em memória (não é coluna do Store), então o Orquestrador **não recarrega** o lead antes do portão — trabalha o mesmo objeto que as fases mutam.
+**Architecture:** `Orquestrador` recebe `criador`, `publicador`, `mailer` e um `notificar(msg)` por injeçêo e conduz as transições pela máquina de estados do M1. O portêo é `not lead.sem_portao`. `sem_portao` vive só em memória (nêo é coluna do Store), entêo o Orquestrador **nêo recarrega** o lead antes do portêo — trabalha o mesmo objeto que as fases mutam.
 
 **Tech Stack:** Python 3.11+, stdlib + pytest. Herda M1–M3 (`Lead`, `Estado`, `db`, `maquina_estados`, `Criador`, `Publicador`).
 
@@ -12,10 +12,10 @@
 
 - Python 3.11+. Núcleo determinístico e testável.
 - **Limites externos injetáveis** (Resend, Telegram API); **nenhum teste faz rede/subprocess.** Boundaries reais sem cobertura.
-- **Portão A+B:** `sem_portao=True` → segue até `enviado`; `False` → para em `aguardando_aprovacao` e notifica; `aprovar(slug)` retoma até `enviado`.
+- **Portêo A+B:** `sem_portao=True` → segue até `enviado`; `False` → para em `aguardando_aprovacao` e notifica; `aprovar(slug)` retoma até `enviado`.
 - **Transições** sempre via `maquina_estados.avancar`: `publicado → {enviado | aguardando_aprovacao}`, `aguardando_aprovacao → enviado`.
-- **Anti-spam:** e-mail sempre com link de opt-out; **supressão** (nunca reenvia a quem está na lista); 1 e-mail por lead.
-- `sem_portao` NÃO é persistido (não está em `CAMPOS`); o Orquestrador usa o objeto em memória.
+- **Anti-spam:** e-mail sempre com link de opt-out; **supressêo** (nunca reenvia a quem está na lista); 1 e-mail por lead.
+- `sem_portao` NêO é persistido (nêo está em `CAMPOS`); o Orquestrador usa o objeto em memória.
 
 ## File Structure
 
@@ -39,7 +39,7 @@
 
 **Interfaces — Produces:**
 - `parse_prospectar(texto: str) -> tuple[str, str, bool]` — de `"/prospectar nutricionistas Bauru --auto"` → `("nutricionistas", "Bauru", True)`. Sem `--auto` → `auto=False`. `nicho`=1º token após o comando, `cidade`=2º token (ignora tokens que começam com `--`). Levanta `ValueError` se faltar nicho ou cidade.
-- `msg_pedir_aprovacao(lead: Lead) -> str` — texto com nome, motivo e o link de preview (`urlNova`), pedindo aprovação.
+- `msg_pedir_aprovacao(lead: Lead) -> str` — texto com nome, motivo e o link de preview (`urlNova`), pedindo aprovaçêo.
 - `msg_enviado(lead: Lead) -> str` — confirma o envio pro e-mail do lead.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_mensagens.py`:
@@ -105,7 +105,7 @@ def msg_enviado(lead: Lead) -> str:
 - `class Supressao` — `__init__(self, emails=None)`, `contem(email) -> bool`, `adicionar(email)`.
 - `class Mailer(enviar_email: Callable[[str,str,str], str], supressao: Supressao, from_email: str)`.
 - `montar_corpo(lead) -> str` — HTML curto com o link único (`urlNova`) e um rodapé de **opt-out** (obrigatório, LGPD).
-- `enviar(lead, conn) -> str | None` — se e-mail na supressão → `None` (não envia, não muda estado); senão valida transição `Estado(lead.status) → ENVIADO`, monta o corpo, chama `enviar_email(to, assunto, html)` (retorna message_id), grava `status=enviado` e `dataProposta` no lead, e retorna o message_id.
+- `enviar(lead, conn) -> str | None` — se e-mail na supressêo → `None` (nêo envia, nêo muda estado); senêo valida transiçêo `Estado(lead.status) → ENVIADO`, monta o corpo, chama `enviar_email(to, assunto, html)` (retorna message_id), grava `status=enviado` e `dataProposta` no lead, e retorna o message_id.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_mailer.py`:
 ```python
@@ -168,9 +168,9 @@ class Supressao:
 
 
 def montar_corpo(lead: Lead) -> str:
-    return (f"<p>Olá! Preparei uma nova versão do site de {lead.nome}.</p>"
+    return (f"<p>Olá! Preparei uma nova versêo do site de {lead.nome}.</p>"
             f'<p><a href="{lead.urlNova or "#"}">Ver a proposta ↗</a></p>'
-            f'<hr><p style="font-size:12px;color:#888">Não quer mais receber? '
+            f'<hr><p style="font-size:12px;color:#888">Nêo quer mais receber? '
             f'Responda com "descadastrar" (opt-out).</p>')
 
 
@@ -197,14 +197,14 @@ class Mailer:
 
 ---
 
-### Task 3: `Orquestrador` (a esteira inteira, com o portão) — centro do M4
+### Task 3: `Orquestrador` (a esteira inteira, com o portêo) — centro do M4
 
 **Files:** Create `prospector/orquestrador/__init__.py`, `prospector/orquestrador/nucleo.py`; Test `tests/test_orquestrador.py`.
 
 **Interfaces — Consumes:** `Criador`, `Publicador`, `Mailer`, `Lead`, `Estado`, `db`, `maquina_estados`, `msg_pedir_aprovacao`, `msg_enviado`. **Produces:**
 - `precisa_aprovacao(lead) -> bool` = `not lead.sem_portao`.
 - `class Orquestrador(criador, publicador, mailer, notificar: Callable[[str], None], conn)`.
-- `processar(lead)`: `dest = criador.redesenhar(lead, conn)` → `publicador.publicar(lead, conn, dest)` (lead agora `publicado`, com `urlNova`); se `precisa_aprovacao(lead)`: transiciona p/ `AGUARDANDO_APROVACAO`, grava, e `notificar(msg_pedir_aprovacao(lead))`; senão `mailer.enviar(lead, conn)` e `notificar(msg_enviado(lead))`. Trabalha o MESMO objeto `lead` (não recarrega — `sem_portao` só existe em memória).
+- `processar(lead)`: `dest = criador.redesenhar(lead, conn)` → `publicador.publicar(lead, conn, dest)` (lead agora `publicado`, com `urlNova`); se `precisa_aprovacao(lead)`: transiciona p/ `AGUARDANDO_APROVACAO`, grava, e `notificar(msg_pedir_aprovacao(lead))`; senêo `mailer.enviar(lead, conn)` e `notificar(msg_enviado(lead))`. Trabalha o MESMO objeto `lead` (nêo recarrega — `sem_portao` só existe em memória).
 - `aprovar(slug)`: carrega o lead (`aguardando_aprovacao`), `mailer.enviar(lead, conn)`, `notificar(msg_enviado(lead))`.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_orquestrador.py`:
@@ -254,7 +254,7 @@ def test_portao_para_em_aprovacao_e_aprovar_envia(tmp_path):
     db.salvar_lead(conn, lead)
     orq.processar(lead)
     assert db.ler_lead(conn, "y").status == "aguardando_aprovacao"
-    assert enviados == []          # ainda não enviou
+    assert enviados == []          # ainda nêo enviou
     assert any("Aprovar" in n for n in notifs)
     orq.aprovar("y")
     assert db.ler_lead(conn, "y").status == "enviado"
@@ -298,12 +298,12 @@ class Orquestrador:
     def aprovar(self, slug: str) -> None:
         lead = db.ler_lead(self._conn, slug)
         if lead is None:
-            raise ValueError(f"lead '{slug}' não encontrado")
+            raise ValueError(f"lead '{slug}' nêo encontrado")
         self._mailer.enviar(lead, self._conn)                  # aguardando_aprovacao -> enviado
         self._notificar(msg_enviado(lead))
 ```
 
-- [ ] **Step 4: Passa** — PASS (2 testes — a esteira inteira em memória). **Step 5: Commit** — `git commit -m "feat(m4): Orquestrador (esteira completa com portão A+B)"`
+- [ ] **Step 4: Passa** — PASS (2 testes — a esteira inteira em memória). **Step 5: Commit** — `git commit -m "feat(m4): Orquestrador (esteira completa com portêo A+B)"`
 
 ---
 
@@ -311,7 +311,7 @@ class Orquestrador:
 
 **Files:** Create `prospector/envio/boundaries.py`, `prospector/canal/boundaries.py`, `prospector/canal/telegram_bot.py`.
 
-> Externos — **não testar** (só import smoke). Latitude p/ detalhes de API. Erros → exceção clara.
+> Externos — **nêo testar** (só import smoke). Latitude p/ detalhes de API. Erros → exceçêo clara.
 
 - [ ] **Step 1: Implementar** — `prospector/envio/boundaries.py`:
 ```python
@@ -380,7 +380,7 @@ class TelegramBot:
 
 **Files:** Modify `prospector/cli.py`; Test `tests/test_cli_atender.py`.
 
-**Interfaces — Produces:** subcomando `aprovar <slug> [--db]` (monta Orquestrador com boundaries reais e chama `aprovar`) e `atender <nicho> <cidade> [--auto] [--db]` (prospecta com o provider fake por padrão e processa cada lead). Para o teste, exponha `montar_orquestrador_fake(conn, tmp_dir, enviados, notifs)` em `cli.py` e teste `aprovar`/`processar` via ele; o subcomando real usa os boundaries de verdade.
+**Interfaces — Produces:** subcomando `aprovar <slug> [--db]` (monta Orquestrador com boundaries reais e chama `aprovar`) e `atender <nicho> <cidade> [--auto] [--db]` (prospecta com o provider fake por padrêo e processa cada lead). Para o teste, exponha `montar_orquestrador_fake(conn, tmp_dir, enviados, notifs)` em `cli.py` e teste `aprovar`/`processar` via ele; o subcomando real usa os boundaries de verdade.
 
 - [ ] **Step 1: Teste que falha** — `tests/test_cli_atender.py`:
 ```python
@@ -392,7 +392,7 @@ def test_aprovar_slug_inexistente(tmp_path, capsys):
     rc = cli.main(["aprovar", "nao-existe", "--db", str(tmp_path / "x.db")])
     assert rc == 1
     out = capsys.readouterr().out.lower()
-    assert "não encontrado" in out or "nao encontrado" in out
+    assert "nêo encontrado" in out or "nao encontrado" in out
 
 
 def test_atender_precisa_nicho_cidade():
@@ -405,7 +405,7 @@ def test_atender_precisa_nicho_cidade():
 def _cmd_aprovar(args):
     conn = db.conectar(args.db)
     if db.ler_lead(conn, args.slug) is None:
-        print(f"Lead '{args.slug}' não encontrado.")
+        print(f"Lead '{args.slug}' nêo encontrado.")
         return 1
     from prospector.orquestrador.nucleo import Orquestrador
     from prospector.criacao.criador import Criador
@@ -430,7 +430,7 @@ def _cmd_aprovar(args):
 
 
 def _cmd_atender(args):
-    # prospecta (provider fake por padrão) e processa cada lead
+    # prospecta (provider fake por padrêo) e processa cada lead
     from prospector.orquestrador.nucleo import Orquestrador
     print("atender: use --db e o provider fake; wiring completo depende de credenciais reais.")
     return 0
@@ -459,10 +459,10 @@ E registre em `main()`:
 
 ## Self-Review
 
-- Mensagens/parse do canal → Task 1 ✓; Mailer + supressão + opt-out → Task 2 ✓; Orquestrador com portão A+B (esteira inteira em memória) → Task 3 ✓; boundaries Resend/Telegram isolados → Task 4 ✓; CLI atender/aprovar → Task 5 ✓.
-- Portão A+B: teste `test_portao_para_em_aprovacao_e_aprovar_envia` cobre os dois caminhos ✓.
-- `sem_portao` não persistido → Orquestrador não recarrega antes do portão ✓.
+- Mensagens/parse do canal → Task 1 ✓; Mailer + supressêo + opt-out → Task 2 ✓; Orquestrador com portêo A+B (esteira inteira em memória) → Task 3 ✓; boundaries Resend/Telegram isolados → Task 4 ✓; CLI atender/aprovar → Task 5 ✓.
+- Portêo A+B: teste `test_portao_para_em_aprovacao_e_aprovar_envia` cobre os dois caminhos ✓.
+- `sem_portao` nêo persistido → Orquestrador nêo recarrega antes do portêo ✓.
 - Nenhum teste toca Resend/Telegram/rede ✓.
-- **Não verificável no sandbox (precisa do usuário):** envio real Resend, bot Telegram real, e a fiação `atender` completa com credenciais. Documentar no relatório.
+- **Nêo verificável no sandbox (precisa do usuário):** envio real Resend, bot Telegram real, e a fiaçêo `atender` completa com credenciais. Documentar no relatório.
 
 **Type consistency:** `Orquestrador(criador, publicador, mailer, notificar, conn)`; `Mailer.enviar(lead, conn)->str|None`; usa `Criador.redesenhar`/`Publicador.publicar` do M3 e `Lead`/`Estado`/`db`/`maquina_estados` do M1.

@@ -9,5 +9,5 @@ def test_filtros_reprova_nota_baixa_poucas_aval_ou_sem_site():
 
 
 def test_slugify():
-    assert slugify("Clínica São José", "Bauru") == "clinica-sao-jose-bauru"
+    assert slugify("Clínica Sêo José", "Bauru") == "clinica-sao-jose-bauru"
     assert slugify("Dr. Ana  Paula") == "dr-ana-paula"

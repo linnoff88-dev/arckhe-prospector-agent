@@ -1,4 +1,4 @@
-﻿# Prospector Agent
+ï»¿# Prospector Agent
 
 <div align="center">
   <img src="capa/logo.svg" alt="Arckhé AI" height="48" />
@@ -6,41 +6,41 @@
 </div>
 
 
-Esteira **semi-autÃ´noma** de prospecÃ§Ã£o e venda de sites: descobre negÃ³cios bem avaliados com site ruim, redesenha a pÃ¡gina, publica e envia a proposta â€” operada por um **bot de Telegram**, com um **orquestrador** determinÃ­stico e **IA (`claude -p`) sÃ³ onde hÃ¡ julgamento/criaÃ§Ã£o**.
+Esteira **semi-autêÂ´noma** de prospecêÂ§êÂ£o e venda de sites: descobre negêÂ³cios bem avaliados com site ruim, redesenha a pêÂ¡gina, publica e envia a proposta ê¢â¬â operada por um **bot de Telegram**, com um **orquestrador** determinêÂ­stico e **IA (`claude -p`) sêÂ³ onde hêÂ¡ julgamento/criaêÂ§êÂ£o**.
 
-> **Status:** **v1 (nÃºcleo determinÃ­stico) construÃ­do e testado â€” 47 testes verdes.**
-> As integraÃ§Ãµes externas (Google Maps, `claude -p`, Resend, Telegram, deploy GitHub Pages) estÃ£o implementadas atrÃ¡s de interfaces, mas **rodar ao vivo depende das suas credenciais** (ver "O que falta").
-> Design: [`docs/superpowers/specs/2026-07-14-prospector-agent-design.md`](docs/superpowers/specs/2026-07-14-prospector-agent-design.md) Â· Planos: [`docs/superpowers/plans/`](docs/superpowers/plans/)
+> **Status:** **v1 (nêÂºcleo determinêÂ­stico) construêÂ­do e testado ê¢â¬â 47 testes verdes.**
+> As integraêÂ§êÂµes externas (Google Maps, `claude -p`, Resend, Telegram, deploy GitHub Pages) estêÂ£o implementadas atrêÂ¡s de interfaces, mas **rodar ao vivo depende das suas credenciais** (ver "O que falta").
+> Design: [`docs/superpowers/specs/2026-07-14-prospector-agent-design.md`](docs/superpowers/specs/2026-07-14-prospector-agent-design.md) êÂ· Planos: [`docs/superpowers/plans/`](docs/superpowers/plans/)
 
 ## A esteira
 
 ```
-descoberto â†’ qualificado â†’ redesenhado â†’ publicado â†’ [PORTÃƒO] â†’ enviado â†’ respondido â†’ fechado
+descoberto ê¢â â qualificado ê¢â â redesenhado ê¢â â publicado ê¢â â [PORTêÆO] ê¢â â enviado ê¢â â respondido ê¢â â fechado
 ```
 
 | Fase | O que faz | Como | Milestone |
 |---|---|---|---|
-| **Descoberta** | acha candidatos no Maps (nota â‰¥ 4.7, com site) | provider plugÃ¡vel (`fake` / `navegador` Playwright) | M2 |
-| **QualificaÃ§Ã£o** | julga "site ruim?" + extrai e-mail/WhatsApp | `claude -p` injetÃ¡vel | M2 |
-| **CriaÃ§Ã£o** | redesenha a pÃ¡gina premium + capa antes/depois | `claude -p` injetÃ¡vel | M3 |
-| **PublicaÃ§Ã£o** | sobe o site + calcula a URL | `git push` â†’ GitHub Pages | M3 |
-| **PortÃ£o** | pede aprovaÃ§Ã£o antes de enviar (ou pula com `--auto`) | Telegram | M4 |
-| **Envio** | manda a proposta (opt-out, supressÃ£o, 1-por-lead) | Resend injetÃ¡vel | M4 |
-| **Orquestrador** | conduz o lead pela mÃ¡quina de estados, aplica o portÃ£o | nÃºcleo determinÃ­stico | M4 |
+| **Descoberta** | acha candidatos no Maps (nota ê¢â°Â¥ 4.7, com site) | provider plugêÂ¡vel (`fake` / `navegador` Playwright) | M2 |
+| **QualificaêÂ§êÂ£o** | julga "site ruim?" + extrai e-mail/WhatsApp | `claude -p` injetêÂ¡vel | M2 |
+| **CriaêÂ§êÂ£o** | redesenha a pêÂ¡gina premium + capa antes/depois | `claude -p` injetêÂ¡vel | M3 |
+| **PublicaêÂ§êÂ£o** | sobe o site + calcula a URL | `git push` ê¢â â GitHub Pages | M3 |
+| **PortêÂ£o** | pede aprovaêÂ§êÂ£o antes de enviar (ou pula com `--auto`) | Telegram | M4 |
+| **Envio** | manda a proposta (opt-out, supressêÂ£o, 1-por-lead) | Resend injetêÂ¡vel | M4 |
+| **Orquestrador** | conduz o lead pela mêÂ¡quina de estados, aplica o portêÂ£o | nêÂºcleo determinêÂ­stico | M4 |
 
 ## Como rodar (v1)
 
 Requer Python 3.11+ e `pytest`.
 
 ```bash
-# 1. suÃ­te completa (nÃºcleo determinÃ­stico, sem rede)
+# 1. suêÂ­te completa (nêÂºcleo determinêÂ­stico, sem rede)
 python3 -m pytest -q                       # 47 passed
 
-# 2. esteira fake ponta a ponta (dry-run, nÃ£o toca disco/rede)
-python3 -m prospector demo --dry-run --auto        # â†’ ... â†’ enviado
-python3 -m prospector demo --dry-run               # â†’ ... â†’ aguardando_aprovacao
+# 2. esteira fake ponta a ponta (dry-run, nêÂ£o toca disco/rede)
+python3 -m prospector demo --dry-run --auto        # ê¢â â ... ê¢â â enviado
+python3 -m prospector demo --dry-run               # ê¢â â ... ê¢â â aguardando_aprovacao
 
-# 3. prospecÃ§Ã£o com provider fake (sem credenciais)
+# 3. prospecêÂ§êÂ£o com provider fake (sem credenciais)
 python3 -m prospector prospectar nutricionistas Bauru --provider fake --db /tmp/pa.db
 ```
 
@@ -48,35 +48,35 @@ Comandos que dependem de credenciais reais (ver abaixo): `prospectar --provider 
 
 ## O que falta (ligar as credenciais)
 
-O nÃºcleo estÃ¡ testado; as **pontas externas** precisam do seu ambiente para rodar ao vivo:
+O nêÂºcleo estêÂ¡ testado; as **pontas externas** precisam do seu ambiente para rodar ao vivo:
 
-- **`ANTHROPIC_API_KEY`** â€” `claude -p` (qualificar + redesenhar). Requer o Claude Code CLI instalado.
-- **Google Maps** â€” `--provider navegador` usa Playwright (`pip install playwright && playwright install chromium`); captcha exige vocÃª por perto (v1 local).
-- **`RESEND_API_KEY`** + domÃ­nio de envio dedicado (SPF/DKIM) â€” envio da proposta.
-- **`TELEGRAM_BOT_TOKEN`** + **`TELEGRAM_CHAT_ID`** â€” bot do portÃ£o/notificaÃ§Ãµes.
-- **Repo Pages** (monorepo `prospector-sites`) + **`GITHUB_TOKEN`** â€” publicaÃ§Ã£o.
+- **`ANTHROPIC_API_KEY`** ê¢â¬â `claude -p` (qualificar + redesenhar). Requer o Claude Code CLI instalado.
+- **Google Maps** ê¢â¬â `--provider navegador` usa Playwright (`pip install playwright && playwright install chromium`); captcha exige vocêÂª por perto (v1 local).
+- **`RESEND_API_KEY`** + domêÂ­nio de envio dedicado (SPF/DKIM) ê¢â¬â envio da proposta.
+- **`TELEGRAM_BOT_TOKEN`** + **`TELEGRAM_CHAT_ID`** ê¢â¬â bot do portêÂ£o/notificaêÂ§êÂµes.
+- **Repo Pages** (monorepo `prospector-sites`) + **`GITHUB_TOKEN`** ê¢â¬â publicaêÂ§êÂ£o.
 
-Copie `.env.example` â†’ `.env` e preencha. Nada disso vai para o git (`.gitignore`).
+Copie `.env.example` ê¢â â `.env` e preencha. Nada disso vai para o git (`.gitignore`).
 
-## PrincÃ­pios
+## PrincêÂ­pios
 
-- **Controle determinÃ­stico em cÃ³digo; IA sÃ³ onde precisa.** Fila, mÃ¡quina de estados e portÃ£o sÃ£o Python testÃ¡vel; o modelo entra sÃ³ em *qualificar* e *redesenhar*.
-- **Limites externos injetÃ¡veis** â€” browser, `claude -p`, Resend, Telegram e `git push` entram por interface, entÃ£o o nÃºcleo Ã© 100% testÃ¡vel sem rede/credenciais.
-- **Providers plugÃ¡veis** â€” descoberta troca de browser para API sem reescrever.
-- **PortÃ¡vel** â€” roda local (A) â†’ hÃ­brido VPS (B) â†’ tudo VPS (C) sÃ³ trocando config.
-- **Autonomia configurÃ¡vel** â€” padrÃ£o com portÃ£o de aprovaÃ§Ã£o; `--auto` deixa rodar sozinho.
+- **Controle determinêÂ­stico em cêÂ³digo; IA sêÂ³ onde precisa.** Fila, mêÂ¡quina de estados e portêÂ£o sêÂ£o Python testêÂ¡vel; o modelo entra sêÂ³ em *qualificar* e *redesenhar*.
+- **Limites externos injetêÂ¡veis** ê¢â¬â browser, `claude -p`, Resend, Telegram e `git push` entram por interface, entêÂ£o o nêÂºcleo êÂ© 100% testêÂ¡vel sem rede/credenciais.
+- **Providers plugêÂ¡veis** ê¢â¬â descoberta troca de browser para API sem reescrever.
+- **PortêÂ¡vel** ê¢â¬â roda local (A) ê¢â â hêÂ­brido VPS (B) ê¢â â tudo VPS (C) sêÂ³ trocando config.
+- **Autonomia configurêÂ¡vel** ê¢â¬â padrêÂ£o com portêÂ£o de aprovaêÂ§êÂ£o; `--auto` deixa rodar sozinho.
 
 ## Roadmap
 
-| VersÃ£o | Onde roda | Descoberta | Status |
+| VersêÂ£o | Onde roda | Descoberta | Status |
 |---|---|---|---|
-| **v1** | local | browser (vocÃª resolve captcha) | nÃºcleo âœ… Â· integraÃ§Ãµes dependem de credenciais |
-| **v1.x** | hÃ­brido VPS | browser local â†’ VPS | planejado |
+| **v1** | local | browser (vocêÂª resolve captcha) | nêÂºcleo ê¢Åâ¦ êÂ· integraêÂ§êÂµes dependem de credenciais |
+| **v1.x** | hêÂ­brido VPS | browser local ê¢â â VPS | planejado |
 | **v2** | tudo VPS | Places API / terceiro | planejado |
 
-## ReferÃªncia
+## ReferêÂªncia
 
-Baseado no plugin Claude Code `prospector-de-sites` (em `../vendasite`), usado sÃ³ como referÃªncia.
+Baseado no plugin Claude Code `prospector-de-sites` (em `../vendasite`), usado sêÂ³ como referêÂªncia.
 
 ---
 
