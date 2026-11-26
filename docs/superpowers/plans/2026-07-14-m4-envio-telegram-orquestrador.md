@@ -440,7 +440,7 @@ E registre em `main()`:
     p_apr = sub.add_parser("aprovar", help="aprova e envia a proposta de um lead")
     p_apr.add_argument("slug")
     p_apr.add_argument("--db", default="prospector.db")
-    p_apr.add_argument("--base-url", default="https://inematds.github.io/prospector-sites")
+    p_apr.add_argument("--base-url", default="https://linnoff88-dev.github.io/arckhe-prospector-sites")
     p_apr.add_argument("--repo-dir", default="../prospector-sites")
     p_apr.add_argument("--from-email", default="contato@cold.exemplo.com")
     p_apr.set_defaults(func=_cmd_aprovar)

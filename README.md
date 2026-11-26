@@ -80,7 +80,7 @@ Baseado no plugin Claude Code `prospector-de-sites` (em `../vendasite`), usado s
 
 ---
 
-_Guia landing: https://inematds.github.io/prospector-agent/guia/_
+_Guia landing: https://linnoff88-dev.github.io/arckhe-/guia/_
 
 ---
 
